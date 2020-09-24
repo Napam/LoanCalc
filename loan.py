@@ -6,14 +6,37 @@ import json
 from pprint import pprint
 import http.client
 from dateutil.relativedelta import relativedelta
+from typing import List
+
 
 class Loan:
+    '''
+    Class for calculating loan schedule for annuity loan
+    '''
     def __init__(
-        laanebelop: float, nominellRente: float, terminGebyr: int, utlopsDato: str, 
+        self, laanebelop: float, nominellRente: float, terminGebyr: float, utlopsDato: str, 
         saldoDato: str, datoForsteInnbetaling: str):
+        """Class for caclulating loan scheudle for annuity loan
+
+        Parameters
+        ----------
+        laanebelop : float
+            Total loan amount
+        nominellRente : float
+            Nominal interest rate pr year. Should be given a percentage.
+        terminGebyr : float
+            Fee for paying down loan 
+        utlopsDato : str
+            Date for last down payment. Should be formatted in ISO 8601 datetime.
+        saldoDato : str
+            Date for when money is transfered to account. Should be formatted in ISO 8601 datetime.
+        datoForsteInnbetaling : str
+            Date for first down payment. Should be formatted in ISO 8601 datetime.
+        """        
         
         self.laanebelop = laanebelop
-        self.nominellRente = nominellRente
+        self.nominellRente = nominellRente / 100
+        self.monthlyRate = self.nominellRente / 12
         self.terminGebyr = terminGebyr
 
         # Requires ISO 8601 formatting for time 
@@ -22,10 +45,17 @@ class Loan:
         self.datoForsteInnbetaling: dt = pd.Timestamp(datoForsteInnbetaling)
 
         assert self.utlopsDato >= self.datoForsteInnbetaling,\
-            "utlopsDato must be later than datoForsteInnbetalnig"
+            "utlopsDato must be later than datoForsteInnbetaling"
 
 
-    def get_dates(self):
+    def get_dates(self) -> List[pd.Timestamp]:
+        """Get downpayment dates
+
+        Returns
+        -------
+        List[pd.Timestamp]
+            List of pd.Timestamp objects
+        """        
         n_months, remaining_days = utils.n_monthsdays_between(self.utlopsDato, 
                                                               self.datoForsteInnbetaling)
         
@@ -40,17 +70,45 @@ class Loan:
         return dates
 
 
-    def get_schedule(self):
+    def get_schedule(self) -> pd.DataFrame:
         datos = self.get_dates()
-        paymentvalue = utils.pmt()
+        paymentvalue = utils.pmt(
+            loan=self.laanebelop,
+            rate=self.monthlyRate,
+            n=len(datos)-1 # Datos include the "zeroth" term, hence remove 1
+        )
 
-        gebyrs = np.full(shape=len(dates), fill_value=self.terminGebyr)
+        gebyrs = np.full(shape=len(datos), fill_value=self.terminGebyr)
         gebyrs[0] = 0
 
-        restgjelds = []
-        innbetalings = []
-        renters = []
-        totals = []
+        # Remember to add gebyr afterwards
+        totals = np.full(shape=len(datos), fill_value=paymentvalue) 
+        totals[0] = 0
+
+        restgjelds = np.zeros_like(totals)
+        restgjelds[0] = self.laanebelop
+
+        innbetalings = np.zeros_like(totals)
+        renters = np.zeros_like(totals)
+
+        for i in range(1, len(totals)):
+            renters[i] = restgjelds[i-1]*self.monthlyRate
+            innbetalings[i] = totals[i] - renters[i] 
+            restgjelds[i] = restgjelds[i-1] - innbetalings[i]
+
+        # Remembering to add gebyrs afterwards
+        totals += gebyrs
+
+        df = pd.DataFrame({
+            'restgjeld':restgjelds,
+            'datos':datos,
+            'innbetaling':innbetalings,
+            'gebyr':gebyrs,
+            'renter':renters,
+            'total':totals
+        })
+
+        return df
 
 if __name__ == '__main__':
     utlopsstring = "2030-10-14"
@@ -60,15 +118,18 @@ if __name__ == '__main__':
     utlopsstring = "2021-02-01"
     saldostring = "2020-01-01"
     datoforstestring = "2020-02-01"
+    gebyr = 30
 
-    loan(
-        laanebelop = 2000000, 
+    loan = Loan(
+        laanebelop = 1000000, 
         nominellRente = 5, 
-        terminGebyr = 30, 
+        terminGebyr = gebyr, 
         utlopsDato = utlopsstring,
         saldoDato =  saldostring,
         datoForsteInnbetaling = datoforstestring
     )
+
+    loan.get_schedule()
 
     def get_sample():
         from matplotlib import pyplot as plt
@@ -78,7 +139,7 @@ if __name__ == '__main__':
         payload_dict = {
             "laanebelop": 1000000, 
             "nominellRente":5, 
-            "terminGebyr":0, 
+            "terminGebyr":gebyr, 
             "utlopsDato":utlopsstring, 
             "saldoDato":saldostring, 
             "datoForsteInnbetaling":datoforstestring, 
