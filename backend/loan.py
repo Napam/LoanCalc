@@ -47,6 +47,9 @@ class Loan:
         assert self.utlopsDato >= self.datoForsteInnbetaling,\
             "utlopsDato must be later than datoForsteInnbetaling"
 
+        # Will be set when schedule is generated
+        self.paymentvalue: float = None
+
 
     def get_dates(self) -> List[pd.Timestamp]:
         """Get downpayment dates
@@ -71,8 +74,17 @@ class Loan:
 
 
     def get_schedule(self) -> pd.DataFrame:
+        """Gets downpayment schedule for annuity loan
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing donwpayment infromation. The format is similar to Stacc's 
+            API response
+        """        
+
         datos = self.get_dates()
-        paymentvalue = utils.pmt(
+        self.paymentvalue = utils.pmt(
             loan=self.laanebelop,
             rate=self.monthlyRate,
             n=len(datos)-1 # Datos include the "zeroth" term, hence remove 1
@@ -82,7 +94,7 @@ class Loan:
         gebyrs[0] = 0
 
         # Remember to add gebyr afterwards
-        totals = np.full(shape=len(datos), fill_value=paymentvalue) 
+        totals = np.full(shape=len(datos), fill_value=self.paymentvalue) 
         totals[0] = 0
 
         restgjelds = np.zeros_like(totals)
@@ -101,7 +113,7 @@ class Loan:
 
         df = pd.DataFrame({
             'restgjeld':restgjelds,
-            'datos':datos,
+            'dato':datos,
             'innbetaling':innbetalings,
             'gebyr':gebyrs,
             'renter':renters,
@@ -129,9 +141,13 @@ if __name__ == '__main__':
         datoForsteInnbetaling = datoforstestring
     )
 
-    loan.get_schedule()
+    df = loan.get_schedule()
+    print(df)
 
     def get_sample():
+        '''
+        For testing and sanity checking
+        '''
         from matplotlib import pyplot as plt
 
         conn = http.client.HTTPSConnection("visningsrom.stacc.com")
@@ -165,6 +181,7 @@ if __name__ == '__main__':
 
         # with pd.option_context('max_columns', None):
         print(df)
+        # pprint(json.loads(df.to_json(orient='records')))
 
         # y_bottom = df.loc[1:].total.mean() - 200
         # y_top = df.loc[1:].total.mean() + 5
