@@ -46,6 +46,18 @@
 }
 
 .loanComponent {
-   background-color: rgb(249, 199, 253);
-    
+    background-color: rgb(249, 199, 253);
+    width: 60%;
 }
+
+.loanComponent .inputLabelText {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.loanComponent form {
+    display: flex;
+    flex-direction: column;
+}
+

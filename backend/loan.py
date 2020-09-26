@@ -112,12 +112,12 @@ class Loan:
         totals += gebyrs
 
         df = pd.DataFrame({
-            'restgjeld':restgjelds,
+            'restgjeld':restgjelds.round(0),
             'dato':datos,
-            'innbetaling':innbetalings,
-            'gebyr':gebyrs,
-            'renter':renters,
-            'total':totals
+            'innbetaling':innbetalings.round(0),
+            'gebyr':gebyrs.round(0),
+            'renter':renters.round(0),
+            'total':totals.round(0)
         })
 
         return df
