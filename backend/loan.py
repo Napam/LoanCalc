@@ -123,6 +123,9 @@ class Loan:
         return df
 
 if __name__ == '__main__':
+    '''
+    Ad hoc testing :^)
+    '''
     utlopsstring = "2030-10-14"
     saldostring = "2020-01-01"
     datoforstestring = "2020-12-18"

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+        api-service:
+                build:
+                        context: ./backend
+                        dockerfile: Dockerfile
+                volumes:
+                        -  ./backend:/app
+                ports:
+                        - 1337:80
+                command: sh -c "python api.py"
+
+
+        website:
+                build:
+                        context: ./frontend
+                        dockerfile: Dockerfile
+                volumes:
+                        - ./frontend:/app
+                ports:
+                        - 3000:3000
+                depends_on:
+                        - api-service
+                stdin_open: True
