@@ -7,6 +7,7 @@ from pprint import pprint
 import http.client
 from dateutil.relativedelta import relativedelta
 from typing import List
+import sys
 
 
 class Loan:

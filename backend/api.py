@@ -5,6 +5,7 @@ import loan
 import random
 from typing import Tuple
 import pandas as pd
+import sys
 
 
 app = Flask(__name__)
@@ -27,8 +28,9 @@ def get_loan(payload: dict) -> dict:
     kwargs = {key:payload[key] for key in payload if key in wanted_kwargs}
 
     loan_object = loan.Loan(**kwargs)
-    schedule: pd.DataFrame = loan_object.get_schedule()
     
+    schedule: pd.DataFrame = loan_object.get_schedule()
+
     schedule['dato'] = schedule['dato'].astype(str)
     
     body = {

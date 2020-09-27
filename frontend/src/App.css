@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Asap&display=swap");
+
 .App {
     text-align: center;
 }
@@ -6,6 +9,18 @@
     height: 40vmin;
     pointer-events: none;
 }
+
+
+#loanCalcTitle {
+    text-align: center;
+    font-weight: 600;
+    font-family: Lato, sans-serif;
+    font-size: 2em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #82ba7f;
+}
+
 
 @media (prefers-reduced-motion: no-preference) {
     .App-logo {
@@ -38,16 +53,18 @@
 }
 
 #mainDiv {
-    padding-top: 100px;
+    padding-top: 20px;
     display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    flex-direction: row;
 }
 
 .loanComponent {
     background-color: rgb(249, 199, 253);
-    width: 60%;
+    width: 80%;
+    margin: 5px;
+    padding: 5px;
 }
 
 .loanComponent .inputLabelText {
@@ -59,5 +76,27 @@
 .loanComponent form {
     display: flex;
     flex-direction: column;
+}
+
+.chartTitle {
+    font-weight: 500;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+#thingy {
+    margin-bottom: 10px;
+}
+
+#inputForm {
+    margin-left: auto;
+    margin-right: auto;
+    width: 400px;
+    padding: 3px;
+    border: solid 2px rgb(255, 153, 247);
+    background-color: rgb(253, 208, 255);
+    border-radius: 10px;
+    font-family: Asap, sans-serif;
 }
 

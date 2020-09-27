@@ -9,6 +9,8 @@ class App extends React.Component {
         return (
             <div id="mainDiv">
                 <LoanCalc></LoanCalc>
+                {/* <LoanCalc></LoanCalc> */}
+                {/* <LoanCalc></LoanCalc> */}
             </div>
         );
     }
