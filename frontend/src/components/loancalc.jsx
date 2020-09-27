@@ -19,6 +19,8 @@ import {
     Label,
 } from "recharts";
 
+const API_URL = "http://localhost:1337/loan";
+
 class LoanCalc extends React.Component {
     state = {
         laanebelop: "2000000",
@@ -28,10 +30,11 @@ class LoanCalc extends React.Component {
         saldoDato: "2020-01-01",
         datoForsteInnbetaling: "2020-02-01",
         plotData: [],
+        plotDomain: [0, 1],
     };
 
     componentDidMount() {
-        axios.post("http://localhost:1337/loan", this.getPayload()).then((res) => {
+        axios.post(API_URL, this.getPayload()).then((res) => {
             this.setState(
                 { plotData: res.data["nedbetalingsplan"]["innbetalinger"] },
                 this.setPlotData()
@@ -65,10 +68,25 @@ class LoanCalc extends React.Component {
         return payload;
     }
 
+    setPlotDomain() {
+        let { innbetaling, renter } = this.state.plotData[1];
+        let proportion = innbetaling / (innbetaling + renter);
+
+        let lowerbound = 0;
+
+        if (proportion > 0.6) {
+            lowerbound = 0.5;
+        }
+        
+        this.setState({ plotDomain: [lowerbound, 1] });
+    }
+
     setPlotData() {
         let payload = this.getPayload();
-        axios.post("http://localhost:1337/loan", payload).then((res) => {
-            this.setState({ plotData: res.data["nedbetalingsplan"]["innbetalinger"] });
+        axios.post(API_URL, payload).then((res) => {
+            this.setState({ plotData: res.data["nedbetalingsplan"]["innbetalinger"] }, () => {
+                this.setPlotDomain();
+            });
         });
     }
 
@@ -191,7 +209,7 @@ class LoanCalc extends React.Component {
                         <YAxis
                             yAxisId="left"
                             orientation="left"
-                            domain={[0.5, 1]}
+                            domain={this.state.plotDomain}
                             allowDataOverflow
                         >
                             <Label value="Andel innbetaling og renter" angle={-90} dx={-30} />

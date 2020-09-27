@@ -7,11 +7,9 @@ from typing import Tuple
 import pandas as pd
 import sys
 
-
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
 api = Api(app)
-
 
 def get_loan(payload: dict) -> dict:
     wanted_kwargs = {
@@ -23,14 +21,9 @@ def get_loan(payload: dict) -> dict:
         'datoForsteInnbetaling'
     }
 
-    # TODO: Sanity check that shit is right
-
     kwargs = {key:payload[key] for key in payload if key in wanted_kwargs}
-
     loan_object = loan.Loan(**kwargs)
-    
     schedule: pd.DataFrame = loan_object.get_schedule()
-
     schedule['dato'] = schedule['dato'].astype(str)
     
     body = {
@@ -58,4 +51,3 @@ api.add_resource(LoanSchedule, '/loan')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80, debug=True)
-    # app.run(port=1337, debug=True)
