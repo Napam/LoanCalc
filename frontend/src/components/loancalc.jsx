@@ -1,11 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
 import {
-    LinearChart,
     Line,
-    LineChart,
     ResponsiveContainer,
-    BarChart,
     YAxis,
     XAxis,
     Tooltip,
@@ -13,15 +10,12 @@ import {
     Legend,
     Brush,
     ComposedChart,
-    CartesianGrid,
-    AreaChart,
-    Area,
     Label,
 } from "recharts";
 
 const API_URL = "http://localhost:1337/loan";
 
-class LoanCalc extends React.Component {
+class LoanCalc extends Component {
     state = {
         laanebelop: "2000000",
         nominellRente: "10",
@@ -70,8 +64,8 @@ class LoanCalc extends React.Component {
 
     setPlotDomain() {
         let { innbetaling, renter } = this.state.plotData[1];
+        
         let proportion = innbetaling / (innbetaling + renter);
-
         let lowerbound = 0;
 
         if (proportion > 0.6) {

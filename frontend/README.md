@@ -1,3 +1,8 @@
+# Overview
+The loan calculator component (which contains most of the code) is found at src/components/loancalc.jsx
+
+---
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
