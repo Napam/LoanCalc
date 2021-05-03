@@ -5,22 +5,25 @@ services:
                 build:
                         context: ./backend
                         dockerfile: Dockerfile
-                volumes:
-                        -  ./backend:/app
                 ports:
                         - 1337:80
                 command: sh -c "python api.py"
-
+                volumes:
+                        -  ./backend:/app
 
         website:
                 build:
                         context: ./frontend
                         dockerfile: Dockerfile
-                volumes:
-                        - ./frontend:/app
-                        - /app/node_modules # Data volume for node_modules
                 ports:
                         - 3000:3000
                 depends_on:
                         - api-service
-                stdin_open: True
+                stdin_open: True 
+                volumes:
+                        - ./frontend:/app
+                        - node_modules:/app/node_modules # Data volume for node_modules
+
+volumes:
+        node_modules:
+
